@@ -19,7 +19,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      - name: Install Docker and Docker Compose
+      - name: Install Dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y docker.io docker-compose
@@ -28,6 +28,10 @@ jobs:
         run: |
           docker-compose -f docker-compose.yml up --build -d
 
-      - name: Check Running Containers
+      - name: Run API Tests
         run: |
-          docker ps -a
+          docker-compose exec -T fastapi_service pytest tests/
+
+      - name: Clean up
+        run: |
+          docker-compose down
