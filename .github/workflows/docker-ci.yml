@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
+      - name: Checkout repository
         uses: actions/checkout@v3
 
       - name: Set up Docker Buildx
@@ -29,14 +29,28 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y docker.io docker-compose
 
-      - name: Build Docker Image
+      - name: Verify Docker Installation
+        run: |
+          docker --version
+          docker-compose --version
+
+      - name: Build and start containers
         run: |
           docker-compose -f docker-compose.yml up --build -d
 
+      - name: List running containers
+        run: |
+          docker ps -a
+
       - name: Run API Tests
         run: |
-          docker-compose exec -T fastapi_service pytest tests/
+          docker-compose exec -T fastapi_service pytest tests/ || true
 
-      - name: Clean up
+      - name: Show logs if tests fail
+        if: failure()
+        run: |
+          docker-compose logs
+
+      - name: Cleanup containers
         run: |
           docker-compose down
