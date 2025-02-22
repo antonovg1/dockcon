@@ -19,11 +19,12 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      - name: Fix containerd conflict
-        run: |
-          sudo apt-get remove -y containerd || true
-          sudo apt-get update
-          sudo apt-get install -y docker.io docker-compose
+- name: Install Docker and Docker Compose
+  run: |
+    curl -fsSL https://get.docker.com | sh
+    sudo systemctl start docker
+    sudo systemctl enable docker
+    sudo apt-get install -y docker-compose
 
       - name: Build Docker Image
         run: |
