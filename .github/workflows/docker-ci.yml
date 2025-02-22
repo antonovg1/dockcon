@@ -19,8 +19,9 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      - name: Install Docker and Docker Compose
+      - name: Fix containerd conflict
         run: |
+          sudo apt-get remove -y containerd || true
           sudo apt-get update
           sudo apt-get install -y docker.io docker-compose
 
@@ -31,3 +32,7 @@ jobs:
       - name: Run API Tests
         run: |
           docker-compose exec -T api pytest tests/
+
+      - name: Cleanup
+        run: |
+          docker-compose down
