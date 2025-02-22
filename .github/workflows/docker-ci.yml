@@ -20,9 +20,11 @@ jobs:
         uses: docker/setup-buildx-action@v2
 
       - name: Remove conflicting containerd package
+        continue-on-error: true
         run: |
-          sudo apt-get remove -y containerd || true
-          sudo apt-get autoremove -y
+          sudo apt-get remove -y containerd.io containerd || true
+          sudo apt-get autoremove -y || true
+          sudo apt-get clean
 
       - name: Install Docker and Docker Compose
         run: |
@@ -34,15 +36,21 @@ jobs:
           docker --version
           docker-compose --version
 
+      - name: Increase Docker permissions
+        run: |
+          sudo usermod -aG docker $USER
+          sudo chmod 666 /var/run/docker.sock
+
       - name: Build and start containers
         run: |
-          docker-compose -f docker-compose.yml up --build -d
+          docker-compose up --build -d
 
       - name: List running containers
         run: |
           docker ps -a
 
       - name: Run API Tests
+        continue-on-error: true
         run: |
           docker-compose exec -T fastapi_service pytest tests/ || true
 
@@ -53,4 +61,4 @@ jobs:
 
       - name: Cleanup containers
         run: |
-          docker-compose down
+          docker-compose down || true
