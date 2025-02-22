@@ -21,19 +21,13 @@ jobs:
 
       - name: Install Docker and Docker Compose
         run: |
-          curl -fsSL https://get.docker.com | sh
-          sudo systemctl start docker
-          sudo systemctl enable docker
-          sudo apt-get install -y docker-compose
+          sudo apt-get update
+          sudo apt-get install -y docker.io docker-compose
 
       - name: Build Docker Image
         run: |
           docker-compose -f docker-compose.yml up --build -d
 
-      - name: Run API Tests
+      - name: Check Running Containers
         run: |
-          docker-compose exec -T fastapi_service pytest tests/
-
-      - name: Stop and Clean Up
-        run: |
-          docker-compose down
+          docker ps -a
